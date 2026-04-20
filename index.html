@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сарыарка: Где живет ветер и простор</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
+
+        :root {
+            --steppe-gold: #f4d03f;
+            --deep-brown: #4e342e;
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #1a1a1a;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* Контейнер для статичного фона */
+        #background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        #bg-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.65);
+            /* Используем качественное изображение степи Сарыарки */
+            background-image: url('https://qazaqstan3d.kz/storage/thumbnails/place/qv/f3/1vsw0ask40408ck04k0k.jpg?p=place%2F260391_1504449440.JPG&s=pd');
+            background-size: cover;
+            background-position: center;
+            animation: subtleZoom 40s infinite alternate ease-in-out;
+        }
+
+        @keyframes subtleZoom {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 100%);
+            z-index: 1;
+        }
+
+        .glass-panel {
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            z-index: 10;
+        }
+
+        .title-font {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .input-name {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 2px solid var(--steppe-gold);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .input-name:focus {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: white;
+            box-shadow: 0 0 20px rgba(244, 208, 63, 0.4);
+            outline: none;
+        }
+
+        .btn-enter {
+            background: linear-gradient(135deg, #f4d03f 0%, #d4ac0d 100%);
+            color: #2d1e1a;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+        }
+
+        .btn-enter.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .btn-enter:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 35px rgba(244, 208, 63, 0.6);
+        }
+
+        .wind-effect {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0.4;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="background-container">
+        <div id="bg-image"></div>
+    </div>
+    
+    <div class="bg-overlay"></div>
+    
+    <canvas id="windCanvas" class="wind-effect"></canvas>
+
+    <main class="relative z-10 h-screen flex flex-col items-center justify-center p-4">
+        
+        <div class="text-center mb-10">
+            <h1 class="title-font text-6xl md:text-8xl mb-4 italic text-yellow-500 drop-shadow-2xl">Сарыарка</h1>
+            <p class="text-sm md:text-xl font-light tracking-[0.4em] uppercase text-gray-200 opacity-90">
+                Где живет ветер и простор
+            </p>
+        </div>
+
+        <div class="glass-panel p-8 md:p-12 rounded-[40px] w-full max-w-lg text-center transition-all">
+            <div id="login-form">
+                <p class="text-xs uppercase tracking-widest text-yellow-200/60 mb-6 font-bold">Добро пожаловать, путник</p>
+                
+                <input type="text" id="username" 
+                       class="input-name w-full px-6 py-4 rounded-2xl text-xl text-center mb-8 text-white"
+                       placeholder="Ваше имя"
+                       maxlength="20"
+                       autocomplete="off">
+
+                <button id="start-btn" onclick="initiateGame()" 
+                        class="btn-enter w-full py-5 rounded-2xl text-lg uppercase shadow-xl">
+                    Начать Путешествие
+                </button>
+            </div>
+
+            <div id="action-loader" class="hidden flex-col items-center">
+                <div class="w-12 h-12 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p class="text-yellow-200 animate-pulse font-medium">Ветер уносит вас в путь...</p>
+            </div>
+        </div>
+
+        <footer class="absolute bottom-8 text-gray-500 text-[10px] uppercase tracking-[0.2em] font-bold">
+            Гимназия им. С.Сейфуллина &copy; 2026
+        </footer>
+    </main>
+
+    <script>
+        const nameInput = document.getElementById('username');
+        const startBtn = document.getElementById('start-btn');
+        const loginForm = document.getElementById('login-form');
+        const actionLoader = document.getElementById('action-loader');
+
+        // Проверка ввода для появления кнопки
+        nameInput.addEventListener('input', (e) => {
+            if (e.target.value.trim().length >= 2) {
+                startBtn.classList.add('visible');
+            } else {
+                startBtn.classList.remove('visible');
+            }
+        });
+
+        // Логика перехода
+        function initiateGame() {
+            const name = nameInput.value.trim();
+            localStorage.setItem('saryarka_player_name', name);
+
+            loginForm.style.opacity = '0';
+            setTimeout(() => {
+                loginForm.classList.add('hidden');
+                actionLoader.classList.remove('hidden');
+                actionLoader.classList.add('flex');
+                
+                setTimeout(() => {
+                    // Переход на страницу первого тура
+                    window.location.href = 'FirstTour.html'; 
+                }, 2000);
+            }, 300);
+        }
+
+        // Анимация частиц ветра на Canvas
+        const canvas = document.getElementById('windCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() { this.init(); }
+            init() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.length = Math.random() * 120 + 60;
+                this.speed = Math.random() * 3 + 1.5;
+                this.opacity = Math.random() * 0.3;
+            }
+            draw() {
+                ctx.strokeStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.lineWidth = 0.8;
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.x + this.length, this.y - this.length * 0.1);
+                ctx.stroke();
+                this.x += this.speed;
+                if (this.x > canvas.width) this.init();
+            }
+        }
+
+        for (let i = 0; i < 40; i++) particles.push(new Particle());
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => p.draw());
+            requestAnimationFrame(animate);
+        }
+
+        window.onload = () => {
+            animate();
+        };
+    </script>
+</body>
+</html>
