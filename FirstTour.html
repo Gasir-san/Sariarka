@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тур 1: Знаток Степи (Светлая тема)</title>
+    <title>Тур 1: Знаток Степи (YouTube версия)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
@@ -86,13 +86,13 @@
             background: #000;
         }
 
-        .video-container iframe, .video-container video {
+        .video-container iframe {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            border: none;
         }
 
         .fade-in {
@@ -134,13 +134,14 @@
                 <p class="text-slate-500 text-sm mt-1">Внимательно изучите материал, чтобы ответить на все вопросы викторины.</p>
             </div>
 
-            <div class="video-container shadow-2xl mb-8">
-                <!-- Тег для локального видео -->
-                <!-- Измените "video.mp4" на название вашего файла -->
-                <video id="intro-video" controls>
-                    <source src="1tour.mp4" type="video/mp4">
-                    Ваш браузер не поддерживает видео.
-                </video>
+            <div id="video-wrapper" class="video-container shadow-2xl mb-8">
+                <!-- Вставьте ID вашего видео YouTube вместо dQw4w9WgXcQ -->
+                <iframe 
+                    src="https://youtu.be/q6AUY2SaQQ4" 
+                    title="Видео о Сарыарке"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
             </div>
 
             <button onclick="startQuiz()" class="w-full py-5 bg-slate-800 text-white font-bold uppercase rounded-2xl hover:bg-slate-700 transition-all shadow-lg hover:shadow-xl active:scale-95 flex items-center justify-center gap-3">
@@ -229,8 +230,8 @@
 
         // Функция запуска викторины после видео
         function startQuiz() {
-            const video = document.getElementById('intro-video');
-            if (video) video.pause(); // Остановить видео при начале теста
+            // Чтобы видео с YouTube перестало играть, мы просто удаляем его из контейнера
+            document.getElementById('video-wrapper').innerHTML = '';
 
             videoCard.style.opacity = '0';
             setTimeout(() => {
