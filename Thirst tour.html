@@ -132,11 +132,15 @@
                 <p class="text-slate-500 text-sm mt-1">Посмотрите видео, чтобы узнать тайны холмов и хранителя этих земель.</p>
             </div>
 
-            <div class="video-container mb-8">
-                <video id="tour3-video" controls>
-                    <source src="3tour.mp4" type="video/mp4">
-                    Ваш браузер не поддерживает видео.
-                </video>
+           <div id="video-wrapper" class="video-container shadow-2xl mb-8">
+                <!-- YouTube Iframe с дополнительными параметрами безопасности и API -->
+                <iframe 
+                    id="yt-player"
+                    src="https://www.youtube.com/embed/9mvwwL6tNa0?si=0Ifwv1rOjuzLtNSg" 
+                    title="YouTube video player" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    allowfullscreen>
+                </iframe>
             </div>
 
             <button onclick="startFinalQuiz()" class="w-full py-5 bg-slate-800 text-white font-bold uppercase rounded-2xl hover:bg-slate-700 transition-all shadow-lg flex items-center justify-center gap-3">
