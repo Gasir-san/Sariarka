@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тур 3: Хранители Земли</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            overflow: hidden;
+        }
+
+        #background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background-image: url('https://images.unsplash.com/photo-1500673922987-e212871fec22?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.1;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.08);
+        }
+
+        .option-btn {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            color: #475569;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .option-btn.correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+            transform: scale(1.02);
+        }
+
+        .option-btn.wrong {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+
+        .option-btn:hover:not(.disabled) {
+            border-color: #f59e0b;
+            background-color: #fffbeb;
+            transform: translateY(-2px);
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 24px;
+            background: #000;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .video-container video {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        #progress-fill {
+            height: 100%;
+            background: #f59e0b;
+            width: 0%;
+            transition: width 0.6s ease;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="background-container"></div>
+    
+    <div class="relative z-10 h-screen flex flex-col items-center justify-center p-4">
+        <!-- Инфо панель -->
+        <div class="absolute top-8 left-8 flex items-center gap-3 bg-white/90 p-3 rounded-2xl shadow-sm">
+            <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                <span class="text-orange-600 font-bold">👤</span>
+            </div>
+            <div>
+                <p class="text-slate-400 text-[10px] uppercase tracking-widest font-bold">Защитник степи</p>
+                <p id="display-name" class="text-slate-800 font-bold italic">...</p>
+            </div>
+        </div>
+
+        <div id="score-panel" class="absolute top-8 right-8 text-right bg-white/90 p-3 rounded-2xl shadow-sm">
+            <p class="text-slate-400 text-[10px] uppercase tracking-widest font-bold">Общий счет</p>
+            <p id="display-score" class="text-2xl font-black text-orange-600">10</p>
+        </div>
+
+        <!-- Видео-карточка -->
+        <div id="video-card" class="glass-panel p-6 md:p-8 rounded-[40px] w-full max-w-3xl fade-in">
+            <div class="mb-6 text-center">
+                <span class="px-4 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-bold uppercase tracking-wider">Финальный этап</span>
+                <h2 class="text-2xl md:text-3xl font-bold font-serif text-slate-800 mt-2">Легенды Сарыарки</h2>
+                <p class="text-slate-500 text-sm mt-1">Посмотрите видео, чтобы узнать тайны холмов и хранителя этих земель.</p>
+            </div>
+
+            <div class="video-container mb-8">
+                <video id="tour3-video" controls>
+                    <source src="3tour.mp4" type="video/mp4">
+                    Ваш браузер не поддерживает видео.
+                </video>
+            </div>
+
+            <button onclick="startFinalQuiz()" class="w-full py-5 bg-slate-800 text-white font-bold uppercase rounded-2xl hover:bg-slate-700 transition-all shadow-lg flex items-center justify-center gap-3">
+                Начать финальный тест <span class="text-xl">➔</span>
+            </button>
+        </div>
+
+        <!-- Викторина -->
+        <div id="quiz-card" class="hidden glass-panel p-8 md:p-12 rounded-[40px] w-full max-w-2xl fade-in">
+            <div class="mb-8">
+                <div class="progress-bar mb-6">
+                    <div id="progress-fill"></div>
+                </div>
+                <div class="flex justify-between items-center mb-4">
+                    <p id="question-number" class="text-slate-400 text-xs uppercase tracking-widest font-bold">Вопрос 1 из 5</p>
+                </div>
+                <h2 id="question-text" class="text-2xl md:text-3xl font-bold font-serif text-slate-800 leading-tight">Загрузка...</h2>
+            </div>
+
+            <div id="options-container" class="space-y-4"></div>
+        </div>
+
+        <!-- Экран финала -->
+        <div id="result-card" class="hidden glass-panel p-10 rounded-[40px] w-full max-w-lg text-center fade-in">
+            <div id="result-icon" class="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl">✨</div>
+            <h2 class="text-4xl font-serif italic text-slate-800 mb-2">Путешествие окончено!</h2>
+            <p id="final-message" class="text-slate-500 mb-8"></p>
+            
+            <div class="bg-orange-50 p-8 rounded-3xl mb-8 border border-orange-100">
+                <p class="text-xs uppercase tracking-widest text-slate-400 mb-2">Ваш итоговый результат</p>
+                <div class="flex items-center justify-center gap-2">
+                    <span id="final-score" class="text-7xl font-black text-slate-800">10</span>
+                    <span class="text-3xl text-slate-300 font-light">/ 15</span>
+                </div>
+            </div>
+            
+            <button onclick="window.location.href='index.html'" class="w-full py-5 bg-slate-800 text-white font-bold uppercase rounded-2xl hover:bg-slate-700 transition-all">Вернуться в начало</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "С чем сравнивают холмы в легенде?",
+                options: ["Со спинами спящих великанов", "С горбами верблюдов", "С красивой посудой"],
+                correct: 0
+            },
+            {
+                question: "Почему земля Сарыарки такая желтая?",
+                options: ["Там всегда осень", "Солнце подарило свет и тепло земле", "Это пустыня"],
+                correct: 1
+            },
+            {
+                question: "Кто является хранителем Сарыарки?",
+                options: ["Орёл", "Люди", "Ветерок Самал"],
+                correct: 2
+            },
+            {
+                question: "Почему трава стала тусклой?",
+                options: ["Наступила осень", "Это ее настоящий цвет", "Люди перестали беречь землю"],
+                correct: 2
+            },
+            {
+                question: "Кому обращено напоминание: «Берегите землю — она живая и добрая»?",
+                options: ["Животным", "Ветрам", "Людям"],
+                correct: 2
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 10; // 4 (тур 1) + 6 (тур 2)
+        let canAnswer = true;
+        const playerName = localStorage.getItem('saryarka_player_name') || "Путник";
+
+        function init() {
+            document.getElementById('display-name').innerText = playerName;
+            document.getElementById('display-score').innerText = score;
+        }
+
+        function startFinalQuiz() {
+            const video = document.getElementById('tour3-video');
+            if (video) video.pause();
+
+            document.getElementById('video-card').classList.add('hidden');
+            document.getElementById('quiz-card').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            canAnswer = true;
+            const data = quizData[currentQuestion];
+            
+            document.getElementById('question-number').innerText = `Вопрос ${currentQuestion + 1} из ${quizData.length}`;
+            document.getElementById('question-text').innerText = data.question;
+            document.getElementById('progress-fill').style.width = `${(currentQuestion / quizData.length) * 100}%`;
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            data.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn w-full text-left p-5 rounded-2xl text-lg font-semibold';
+                btn.innerText = option;
+                btn.onclick = () => handleAnswer(index, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIndex, clickedBtn) {
+            if (!canAnswer) return;
+            canAnswer = false;
+
+            const correctIndex = quizData[currentQuestion].correct;
+            const buttons = document.querySelectorAll('.option-btn');
+
+            if (selectedIndex === correctIndex) {
+                clickedBtn.classList.add('correct');
+                score++;
+                document.getElementById('display-score').innerText = score;
+            } else {
+                clickedBtn.classList.add('wrong');
+                buttons[correctIndex].classList.add('correct');
+            }
+
+            currentQuestion++;
+
+            setTimeout(() => {
+                if (currentQuestion < quizData.length) {
+                    loadQuestion();
+                } else {
+                    showFinalResults();
+                }
+            }, 1500);
+        }
+
+        function showFinalResults() {
+            document.getElementById('progress-fill').style.width = '100%';
+            document.getElementById('quiz-card').classList.add('hidden');
+            document.getElementById('result-card').classList.remove('hidden');
+            document.getElementById('final-score').innerText = score;
+            
+            let message = "";
+            if (score === 15) {
+                message = "Вы — истинный Хранитель Сарыарки! Вы усвоили все уроки и легенды этой земли.";
+                document.getElementById('result-icon').innerText = "👑";
+            } else if (score >= 12) {
+                message = "Прекрасный результат! Вы очень внимательны к истории и природе родного края.";
+                document.getElementById('result-icon').innerText = "🌟";
+            } else {
+                message = "Вы прошли долгий путь. Помните: земля живая и добрая, берегите её!";
+                document.getElementById('result-icon').innerText = "🌾";
+            }
+            
+            document.getElementById('final-message').innerText = `${playerName}, ${message}`;
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
